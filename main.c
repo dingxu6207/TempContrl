@@ -120,11 +120,11 @@ void main(void)
        DisplayData(u16_adc1_value);
        
         
-       ADC_ChannelCmd (ADC1,ADC_Channel_17,ENABLE);//ADC1 17通道使能
+       ADC_ChannelCmd (ADC1,ADC_Channel_4,ENABLE);//ADC1 17通道使能
        USART1_SendStr("ADC2转换结果为: ");
        ChangeAD();
        u16_adc2_value=ADC_GetConversionValue (ADC1);//获取转换值
-       ADC_ChannelCmd (ADC1,ADC_Channel_17,DISABLE);//ADC1 17通道使能
+       ADC_ChannelCmd (ADC1,ADC_Channel_4,DISABLE);//ADC1 17通道使能
 
        Delay(100000);
 
