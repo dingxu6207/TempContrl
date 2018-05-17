@@ -241,10 +241,10 @@ void main(void)
   ADC_Cmd(ADC1,ENABLE);//ADC1使能
   //ADC_ChannelCmd (ADC1,ADC_Channel_18,ENABLE);//ADC1 18通道使能
   
-   LED[0]=4;
-   LED[1]=3;
-   LED[2]=2;
-   LED[3]=1;
+   LED[0] = 4;
+   LED[1] = 3;
+   LED[2] = 2;
+   LED[3] = 1;
    
    TIM2_Init();
    
@@ -260,8 +260,8 @@ void main(void)
        ADC_ChannelCmd (ADC1,ADC_Channel_18,DISABLE);//ADC1 18通道使能
 
        //Delay(0xFFFF);
-       u16_adc1_value = (u16_adc1_value*33000)>>12;//电压扩大100倍
-       u16_adc1_value = u16_adc1_value/100;
+       u16_adc1_value = (u16_adc1_value*33000)>>12;//电压扩大10倍
+       u16_adc1_value = u16_adc1_value/1000;
        DisplayData(u16_adc1_value);
  
              
@@ -272,13 +272,13 @@ void main(void)
        ADC_ChannelCmd (ADC1,ADC_Channel_4,DISABLE);//ADC1 17通道使能
 
        //Delay(0xFFFF);
-       u16_adc2_value = (u16_adc2_value*33000)>>12;//电压扩大100倍
-       u16_adc2_value = u16_adc2_value/100;
+       u16_adc2_value = (u16_adc2_value*33000)>>12;//电压扩大10倍
+       u16_adc2_value = u16_adc2_value/1000;
        DisplayData(u16_adc2_value);
         
        #endif
 
-       if(GPIO_ReadInputDataBit(KEY_PORT,KEY_PINS)==0)//读GPB1输入状态
+       if (GPIO_ReadInputDataBit(KEY_PORT,KEY_PINS)==0)//读GPB1输入状态
        {
              Delay(4000);  //软件防抖,20ms
              if(GPIO_ReadInputDataBit(KEY_PORT,KEY_PINS)==0)  //读GPB1输入状态
@@ -292,19 +292,19 @@ void main(void)
       if (CounterDisplay < 125)
       {
           //显示当前温度
-          LED[0] = 5;
-          LED[1] = 4;
-          LED[2] = 3;
-          LED[3] = 2;
+            LED[0] = 0;
+            LED[1] = u16_adc1_value/10;
+            LED[2] = u16_adc1_value%10;
+            LED[3] = 16;   
   
       }
       else
      {
           //显示镜筒温度
-          LED[0] = 9;
-          LED[1] = 8;
-          LED[2] = 7;
-          LED[3] = 6;
+            LED[0] = 0;
+            LED[1] = u16_adc2_value/10;
+            LED[2] = u16_adc2_value%10;
+            LED[3] = 16; 
 
       }
   
