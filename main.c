@@ -1,3 +1,13 @@
+/*
+  ******************************************************************************
+  * @file    main.c
+  * @author  dingxu
+  * @version V1.0
+  * @date    2018-05-17
+  * @brief   温控
+  ******************************************************************************
+  */
+
 #include "stm8l15x.h"//STM8L051/151公用库函数
 #include <stdlib.h>
 #include "math.h"  
@@ -30,13 +40,13 @@ unsigned char  LED_0F[] =
 uchar LED[8];	//用于LED的8位显示缓存
 
 #define DIO_PORT  GPIOB
-#define DIO_PINS  GPIO_Pin_4
+#define DIO_PINS  GPIO_Pin_3
 
 #define RCLK_PORT  GPIOB
-#define RCLK_PINS  GPIO_Pin_5
+#define RCLK_PINS  GPIO_Pin_4
 
 #define SCLK_PORT  GPIOB
-#define SCLK_PINS  GPIO_Pin_6
+#define SCLK_PINS  GPIO_Pin_5
 
 #define DIOHigh  GPIO_SetBits(DIO_PORT, DIO_PINS)
 #define DIOLow   GPIO_ResetBits(DIO_PORT, DIO_PINS)
@@ -51,7 +61,6 @@ uchar LED[8];	//用于LED的8位显示缓存
 ****入口参数：无
 ****出口参数：无
 ****函数备注：不精确延时函数
-****版权信息：蓝旗嵌入式系统
 *******************************************************************************/
 void Delay(__IO uint16_t nCount)
 {
@@ -65,7 +74,6 @@ void Delay(__IO uint16_t nCount)
 ****入口参数：需要发送的字符串
 ****出口参数：无
 ****函数备注：USART发送函数
-****版权信息：蓝旗嵌入式系统
 *******************************************************************************/
 void USART1_SendStr(unsigned char *Str) 
 {
@@ -80,7 +88,6 @@ void USART1_SendStr(unsigned char *Str)
 ****入口参数：需要发送的16进制数
 ****出口参数：无
 ****函数备注：USART发送16进制函数
-****版权信息：蓝旗嵌入式系统
 *******************************************************************************/
 void USART1_SendHex(unsigned char dat)
 {
@@ -112,8 +119,7 @@ void  ChangeAD()
 //打印16进制
 void DisplayData(u16  data)
 {
-
-	 USART1_SendHex((data>>8));  
+     USART1_SendHex((data>>8));  
      USART1_SendHex((data&0xff));
      USART1_SendStr("\r\n");
 
@@ -135,6 +141,7 @@ void LED4_Display (void)
 
 	RCLKLow;
 	RCLKHigh;
+        
 	
 	//显示第2位
 	led_table = LED_0F + LED[2];
@@ -146,8 +153,7 @@ void LED4_Display (void)
 	RCLKLow;
 	RCLKHigh;
         
-        
-#if 1
+               
 	//显示第3位
 	led_table = LED_0F + LED[1];
 	i = *led_table;
@@ -158,7 +164,7 @@ void LED4_Display (void)
 	RCLKLow;
 	RCLKHigh;
         
-        
+          
 	//显示第4位
 	led_table = LED_0F + LED[0];
 	i = *led_table;
@@ -168,12 +174,12 @@ void LED4_Display (void)
 
 	RCLKLow;
 	RCLKHigh;
-#endif
+
 }
 
 
 //------------------------------------------
-//
+//74HC595的每一个移位
 
 void LED_OUT(uchar X)
 {
@@ -187,6 +193,7 @@ void LED_OUT(uchar X)
 	}
 }
 
+//-------------------------------------------------
 //定时器2配置，1毫秒产生一次中断，用于系统计时
 
 void TIM2_Init(void)   
@@ -206,7 +213,8 @@ void TIM2_Init(void)
 ****函数备注:PB0(adc1-18)作为ADC输入口，可以通过杜邦线将3.3V或GND连至此口，ADC转换结果通过
              USART输出
 ********************************************************************************/
-extern u16 temp;
+
+extern u8 CounterDisplay;
 void main(void)
 {
   u16 u16_adc1_value; 
@@ -233,10 +241,10 @@ void main(void)
   ADC_Cmd(ADC1,ENABLE);//ADC1使能
   //ADC_ChannelCmd (ADC1,ADC_Channel_18,ENABLE);//ADC1 18通道使能
   
-   LED[0]=1;
-   LED[1]=2;
-   LED[2]=3;
-   LED[3]=4;
+   LED[0]=4;
+   LED[1]=3;
+   LED[2]=2;
+   LED[3]=1;
    
    TIM2_Init();
    
@@ -251,7 +259,7 @@ void main(void)
        u16_adc1_value=ADC_GetConversionValue (ADC1);//获取转换值
        ADC_ChannelCmd (ADC1,ADC_Channel_18,DISABLE);//ADC1 18通道使能
 
-       Delay(0xFFFF);
+       //Delay(0xFFFF);
        u16_adc1_value = (u16_adc1_value*33000)>>12;//电压扩大100倍
        u16_adc1_value = u16_adc1_value/100;
        DisplayData(u16_adc1_value);
@@ -263,7 +271,7 @@ void main(void)
        u16_adc2_value=ADC_GetConversionValue (ADC1);//获取转换值
        ADC_ChannelCmd (ADC1,ADC_Channel_4,DISABLE);//ADC1 17通道使能
 
-       Delay(0xFFFF);
+       //Delay(0xFFFF);
        u16_adc2_value = (u16_adc2_value*33000)>>12;//电压扩大100倍
        u16_adc2_value = u16_adc2_value/100;
        DisplayData(u16_adc2_value);
@@ -272,15 +280,35 @@ void main(void)
 
        if(GPIO_ReadInputDataBit(KEY_PORT,KEY_PINS)==0)//读GPB1输入状态
        {
-             Delay(0x3FFF);  //软件防抖
+             Delay(4000);  //软件防抖,20ms
              if(GPIO_ReadInputDataBit(KEY_PORT,KEY_PINS)==0)  //读GPB1输入状态
              {
-                 GPIO_ToggleBits(LED_PORT, LED_PINS);//翻转LED输出状态
-                 LED[0]++;
-             
+                 GPIO_ToggleBits(LED_PORT, LED_PINS);//翻转LED输出状态            
              }
                
-       }      
+       }  
+               
+          
+      if (CounterDisplay < 125)
+      {
+          //显示当前温度
+          LED[0] = 5;
+          LED[1] = 4;
+          LED[2] = 3;
+          LED[3] = 2;
+  
+      }
+      else
+     {
+          //显示镜筒温度
+          LED[0] = 9;
+          LED[1] = 8;
+          LED[2] = 7;
+          LED[3] = 6;
+
+      }
+  
+  
   }
 }
 
