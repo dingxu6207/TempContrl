@@ -1,5 +1,6 @@
 #include "stm8l15x.h"//STM8L051/151公用库函数
 #include <stdlib.h>
+#include "math.h"  
 
 //定义LED及按键端口
 #define LED_PORT  GPIOD
@@ -134,13 +135,14 @@ void LED4_Display (void)
 
 	RCLKLow;
 	RCLKHigh;
+	
 	//显示第2位
 	led_table = LED_0F + LED[2];
 	i = *led_table;
 
 	LED_OUT(i);		
 	LED_OUT(0x02);		
-
+	
 	RCLKLow;
 	RCLKHigh;
         
@@ -209,6 +211,7 @@ void main(void)
 {
   u16 u16_adc1_value; 
   u16 u16_adc2_value;
+
   
   GPIO_Init(LED_PORT,LED_PINS,GPIO_Mode_Out_PP_Low_Slow);//初始化LED端口
   GPIO_Init(KEY_PORT,KEY_PINS,GPIO_Mode_In_PU_No_IT);//初始化KEY端口，带上拉输入，不带中断
@@ -230,14 +233,14 @@ void main(void)
   ADC_Cmd(ADC1,ENABLE);//ADC1使能
   //ADC_ChannelCmd (ADC1,ADC_Channel_18,ENABLE);//ADC1 18通道使能
   
-   LED[0]=7;
+   LED[0]=1;
    LED[1]=2;
    LED[2]=3;
    LED[3]=4;
    
    TIM2_Init();
    
-   asm("rim"); 
+   asm("rim"); //开中断
    
   while (1)
   {
@@ -248,21 +251,21 @@ void main(void)
        u16_adc1_value=ADC_GetConversionValue (ADC1);//获取转换值
        ADC_ChannelCmd (ADC1,ADC_Channel_18,DISABLE);//ADC1 18通道使能
 
-      // Delay(0xFFFF);
-       u16_adc1_value = (u16_adc1_value*33000)>>12;
-      
+       Delay(0xFFFF);
+       u16_adc1_value = (u16_adc1_value*33000)>>12;//电压扩大100倍
+       u16_adc1_value = u16_adc1_value/100;
        DisplayData(u16_adc1_value);
-       
-        
+ 
+             
        ADC_ChannelCmd (ADC1,ADC_Channel_4,ENABLE);//ADC1 17通道使能
-       USART1_SendStr("ADC2转换结果为: ");
+       USART1_SendStr("ADC2转换结果为: "); 
        ChangeAD();
        u16_adc2_value=ADC_GetConversionValue (ADC1);//获取转换值
        ADC_ChannelCmd (ADC1,ADC_Channel_4,DISABLE);//ADC1 17通道使能
 
-      // Delay(0xFFFF);
-       u16_adc2_value = (u16_adc2_value*33000)>>12;
-
+       Delay(0xFFFF);
+       u16_adc2_value = (u16_adc2_value*33000)>>12;//电压扩大100倍
+       u16_adc2_value = u16_adc2_value/100;
        DisplayData(u16_adc2_value);
         
        #endif
@@ -271,16 +274,13 @@ void main(void)
        {
              Delay(0x3FFF);  //软件防抖
              if(GPIO_ReadInputDataBit(KEY_PORT,KEY_PINS)==0)  //读GPB1输入状态
-                GPIO_ToggleBits(LED_PORT, LED_PINS);//翻转LED输出状态
-       }
-     
-        //if (temp >= 0)
-       // {
-        //   LED4_Display ();
-        
-       // }
-       
-      
+             {
+                 GPIO_ToggleBits(LED_PORT, LED_PINS);//翻转LED输出状态
+                 LED[0]++;
+             
+             }
+               
+       }      
   }
 }
 
