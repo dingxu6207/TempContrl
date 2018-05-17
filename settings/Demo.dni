@@ -28,7 +28,7 @@ ActionState=1
 Enabled=0
 ShowSource=1
 [DebugChecksum]
-Checksum=-1921261389
+Checksum=1423879946
 [CallStack]
 ShowArgs=0
 [Disassembly]
@@ -38,9 +38,6 @@ LogEnabled=0
 GraphEnabled=0
 ShowTimeLog=1
 ShowTimeSum=1
-[Breakpoints]
-Bp0=_ "STD_CODE" "0x00814C" 0 0 0 0 "" 0 ""
-Count=1
 [Log file]
 LoggingEnabled=_ 0
 LogFile=_ ""
@@ -48,6 +45,9 @@ Category=_ 0
 [TermIOLog]
 LoggingEnabled=_ 0
 LogFile=_ ""
+[Breakpoints]
+Bp0=_ "STD_CODE" "0x00814C" 0 0 0 0 "" 0 ""
+Count=1
 [Aliases]
 A0=_ "C:\Documents and Settings\Administrator\×ÀÃæ\051\STM8L15x_StdPeriph_Driver\src\stm8l15x_gpio.c" ""
 A1=_ "C:\Documents and Settings\Administrator\×ÀÃæ\051Àý³Ì\5.REMAP\STM8L15x_StdPeriph_Driver\src\stm8l15x_usart.c" ""

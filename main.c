@@ -200,8 +200,8 @@ void TIM2_Init(void)
 
 { 
   CLK_PeripheralClockConfig(CLK_Peripheral_TIM2,ENABLE);//将主时钟信号送给定时器4(L系列单片机必需)
-  TIM2_TimeBaseInit(TIM2_Prescaler_16,TIM2_CounterMode_Up,0x7D);            //定时器4,将主时钟16分频.自动装载FA=125
-  TIM2_SetCounter(0xFA);                                //设定计数值FA=125
+  TIM2_TimeBaseInit(TIM2_Prescaler_16,TIM2_CounterMode_Up,500);            //500us
+  TIM2_SetCounter(10);                                //寄存器存储初始值
   TIM2_ITConfig(TIM2_IT_Update,ENABLE);
   TIM2_ARRPreloadConfig(ENABLE);
   TIM2_Cmd(ENABLE);                                    //计数器使能，开始计数   
