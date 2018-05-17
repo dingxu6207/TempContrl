@@ -285,14 +285,18 @@ INTERRUPT_HANDLER(ADC1_COMP_IRQHandler,18)
   * @param  None
   * @retval None
   */
-u8 CounterDisplay = 0;
+u16 CounterDisplay = 0;
 INTERRUPT_HANDLER(TIM2_UPD_OVF_TRG_BRK_USART2_TX_IRQHandler,19)
 {
     /* In order to detect unexpected events during development,
        it is recommended to set a breakpoint on the following instruction.
     */
-   // LED4_Display ();
-    CounterDisplay++;
+    
+    if  (CounterDisplay > 2000) 
+        CounterDisplay = 0;
+    else
+        CounterDisplay++;
+    
     LED4_Display ();
     TIM2_ClearFlag(TIM2_FLAG_Update);
 }

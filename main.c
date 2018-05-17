@@ -200,8 +200,8 @@ void TIM2_Init(void)
 
 { 
   CLK_PeripheralClockConfig(CLK_Peripheral_TIM2,ENABLE);//将主时钟信号送给定时器4(L系列单片机必需)
-  TIM2_TimeBaseInit(TIM2_Prescaler_16,TIM2_CounterMode_Up,500);            //500us
-  TIM2_SetCounter(10);                                //寄存器存储初始值
+  TIM2_TimeBaseInit(TIM2_Prescaler_16,TIM2_CounterMode_Up,100);            //100us
+  TIM2_SetCounter(250);                                //寄存器存储初始值
   TIM2_ITConfig(TIM2_IT_Update,ENABLE);
   TIM2_ARRPreloadConfig(ENABLE);
   TIM2_Cmd(ENABLE);                                    //计数器使能，开始计数   
@@ -214,7 +214,7 @@ void TIM2_Init(void)
              USART输出
 ********************************************************************************/
 
-extern u8 CounterDisplay;
+extern u16 CounterDisplay;
 void main(void)
 {
   u16 u16_adc1_value; 
@@ -287,9 +287,9 @@ void main(void)
              }
                
        }  
-               
-          
-      if (CounterDisplay < 125)
+                     
+        
+      if (CounterDisplay < 1000)
       {
           //显示当前温度
             LED[0] = 0;
