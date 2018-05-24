@@ -13,8 +13,13 @@
 #include "math.h"  
 
 //定义LED及按键端口
-#define LED_PORT  GPIOD
-#define LED_PINS  GPIO_Pin_0
+#define LED_PORT  GPIOA
+#define LED_PINS  GPIO_Pin_2
+#define LED1_PORT  GPIOA
+#define LED1_PINS  GPIO_Pin_3
+#define HOT_PORT  GPIOD
+#define HOT_PINS  GPIO_Pin_0
+
 #define KEY_PORT  GPIOB
 #define KEY_PINS  GPIO_Pin_1
 
@@ -126,14 +131,14 @@ void DisplayData(u16  data)
 }
 
 //---------------------------------------------------------------------------
-//
+//数码管显示
 
 void LED4_Display (void)
 {
 	unsigned char *led_table;          // 查表指针
 	uchar i;
-	//显示第1位
-	led_table = LED_0F + LED[3];
+	//显示第3位
+	led_table = LED_0F + LED[2];
 	i = *led_table;
 
 	LED_OUT(i);	
@@ -144,7 +149,7 @@ void LED4_Display (void)
         
 	
 	//显示第2位
-	led_table = LED_0F + LED[2];
+	led_table = LED_0F + LED[1];
 	i = *led_table;
 
 	LED_OUT(i);		
@@ -154,8 +159,8 @@ void LED4_Display (void)
 	RCLKHigh;
         
                
-	//显示第3位
-	led_table = LED_0F + LED[1];
+	//显示第1位
+	led_table = LED_0F + LED[0];
 	i = *led_table;
 
 	LED_OUT(i);			
@@ -164,7 +169,7 @@ void LED4_Display (void)
 	RCLKLow;
 	RCLKHigh;
         
-          
+#if 0 
 	//显示第4位
 	led_table = LED_0F + LED[0];
 	i = *led_table;
@@ -174,6 +179,7 @@ void LED4_Display (void)
 
 	RCLKLow;
 	RCLKHigh;
+#endif
 
 }
 
@@ -191,6 +197,75 @@ void LED_OUT(uchar X)
 		SCLKHigh;
 		SCLKLow;
 	}
+}
+
+//--------------------------------------------------------
+//环境温度
+void DisplayTemperNow(u16 u16_adc1_value)
+{  
+      u16 Tempter;
+      
+      if ((u16_adc1_value) < 29 && (u16_adc1_value >= 18))
+      {
+          Tempter = 28 - u16_adc1_value;
+          LED[0] = 0;
+          LED[1] = Tempter/10;
+          LED[2] = Tempter%10;
+     }
+     else if ((u16_adc1_value) < 18 && (u16_adc1_value >= 12))
+     {
+          Tempter = 30 - u16_adc1_value;
+          LED[0] = 0;
+          LED[1] = Tempter/10;
+          LED[2] = Tempter%10;
+     
+     }
+     else if ((u16_adc1_value) < 12 && (u16_adc1_value >= 9))
+     {
+          Tempter = 33 - u16_adc1_value;
+          LED[0] = 0;
+          LED[1] = Tempter/10;
+          LED[2] = Tempter%10;
+     
+     }
+     else if ((u16_adc1_value) < 9 && (u16_adc1_value >= 7))
+     {
+          Tempter = 38 - u16_adc1_value;
+          LED[0] = 0;
+          LED[1] = Tempter/10;
+          LED[2] = Tempter%10;
+     }
+     else if ((u16_adc1_value) < 7 && (u16_adc1_value >= 4))
+     {
+          Tempter = 45 - u16_adc1_value;
+          LED[0] = 0;
+          LED[1] = Tempter/10;
+          LED[2] = Tempter%10;
+     }
+     else if ((u16_adc1_value) < 4 && (u16_adc1_value >= 2))
+     {
+         Tempter = 50 - u16_adc1_value;
+          LED[0] = 0;
+          LED[1] = Tempter/10;
+          LED[2] = Tempter%10;
+     
+     }
+
+}
+
+//----------------------------------------
+//
+void  DisplayTemperInsider(u16 u16_adc1_value)
+{
+    DisplayTemperNow(u16_adc1_value);
+}
+
+//------------------------------------------
+//镜筒温度
+void DisplayTemperSide(u16 u16_adc2_value)
+{
+     DisplayTemperNow(u16_adc2_value);
+
 }
 
 //-------------------------------------------------
@@ -222,12 +297,15 @@ void main(void)
 
   
   GPIO_Init(LED_PORT,LED_PINS,GPIO_Mode_Out_PP_Low_Slow);//初始化LED端口
+  GPIO_Init(LED1_PORT,LED1_PINS,GPIO_Mode_Out_PP_Low_Slow);//初始化LED端口
+  
+  GPIO_Init(HOT_PORT,HOT_PINS,GPIO_Mode_Out_PP_Low_Slow);
+  
   GPIO_Init(KEY_PORT,KEY_PINS,GPIO_Mode_In_PU_No_IT);//初始化KEY端口，带上拉输入，不带中断
   
   GPIO_Init(DIO_PORT,DIO_PINS,GPIO_Mode_Out_PP_High_Fast);//初始化DIO端口
   GPIO_Init(RCLK_PORT,RCLK_PINS,GPIO_Mode_Out_PP_High_Fast);//初始化RCLK端口
   GPIO_Init(SCLK_PORT,SCLK_PINS,GPIO_Mode_Out_PP_High_Fast);//初始化RCLK端口
-  
   
   //SYSCFG_REMAPPinConfig(REMAP_Pin_USART1TxRxPortA,ENABLE);//端口重映射，去掉注释之后USART1为PA2-TX、PA3-RX；注释之后USART1为TX-PC5、RX-PC6；复位之后USART会自动恢复至PC5、PC6
   
@@ -259,9 +337,10 @@ void main(void)
        u16_adc1_value=ADC_GetConversionValue (ADC1);//获取转换值
        ADC_ChannelCmd (ADC1,ADC_Channel_18,DISABLE);//ADC1 18通道使能
 
-       //Delay(0xFFFF);
+      // Delay(0xFFFF);
        u16_adc1_value = (u16_adc1_value*33000)>>12;//电压扩大10倍
        u16_adc1_value = u16_adc1_value/1000;
+       u16_adc1_value = (10*u16_adc1_value)/(33-u16_adc1_value);
        DisplayData(u16_adc1_value);
  
              
@@ -271,9 +350,10 @@ void main(void)
        u16_adc2_value=ADC_GetConversionValue (ADC1);//获取转换值
        ADC_ChannelCmd (ADC1,ADC_Channel_4,DISABLE);//ADC1 17通道使能
 
-       //Delay(0xFFFF);
+      // Delay(0xFFFF);
        u16_adc2_value = (u16_adc2_value*33000)>>12;//电压扩大10倍
        u16_adc2_value = u16_adc2_value/1000;
+       u16_adc2_value = (10*u16_adc2_value)/(33-u16_adc2_value);
        DisplayData(u16_adc2_value);
         
        #endif
@@ -291,23 +371,20 @@ void main(void)
         
       if (CounterDisplay < 1000)
       {
-          //显示当前温度
-            LED[0] = 0;
-            LED[1] = u16_adc1_value/10;
-            LED[2] = u16_adc1_value%10;
-            LED[3] = 16;   
+          
+          //  LED[3] = 16; 
+            DisplayTemperNow(u16_adc1_value);
   
       }
       else
      {
           //显示镜筒温度
-            LED[0] = 0;
-            LED[1] = u16_adc2_value/10;
-            LED[2] = u16_adc2_value%10;
-            LED[3] = 16; 
+           
+           // LED[3] = 16; 
+            DisplayTemperSide(u16_adc2_value);
 
       }
-  
+      GPIO_SetBits(HOT_PORT, HOT_PINS);
   
   }
 }
