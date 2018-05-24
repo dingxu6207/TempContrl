@@ -23,7 +23,9 @@
 #define KEY_PORT  GPIOB
 #define KEY_PINS  GPIO_Pin_1
 
-
+                 // 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19               28
+//温度数据
+u8 TemperTable[]= {100,95,80,64,54,40,36,32,29,26,24,22,20,19,17,16,15,13,12,9,8,6,5,4,3,2,1,0,0,1,2,2,3,4,4,5,6,6,7,7,8};
 //数码管显示
 uint8_t HexTable[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
@@ -147,6 +149,8 @@ void LED4_Display (void)
 	RCLKLow;
 	RCLKHigh;
         
+       //Delay(1000);
+        
 	
 	//显示第2位
 	led_table = LED_0F + LED[1];
@@ -157,6 +161,7 @@ void LED4_Display (void)
 	
 	RCLKLow;
 	RCLKHigh;
+       // Delay(1000);
         
                
 	//显示第1位
@@ -168,6 +173,8 @@ void LED4_Display (void)
 
 	RCLKLow;
 	RCLKHigh;
+        //Delay(1000);
+        
         
 #if 0 
 	//显示第4位
@@ -199,72 +206,37 @@ void LED_OUT(uchar X)
 	}
 }
 
-//--------------------------------------------------------
-//环境温度
-void DisplayTemperNow(u16 u16_adc1_value)
-{  
-      u16 Tempter;
-      
-      if ((u16_adc1_value) < 29 && (u16_adc1_value >= 18))
-      {
-          Tempter = 28 - u16_adc1_value;
-          LED[0] = 0;
-          LED[1] = Tempter/10;
-          LED[2] = Tempter%10;
-     }
-     else if ((u16_adc1_value) < 18 && (u16_adc1_value >= 12))
-     {
-          Tempter = 30 - u16_adc1_value;
-          LED[0] = 0;
-          LED[1] = Tempter/10;
-          LED[2] = Tempter%10;
-     
-     }
-     else if ((u16_adc1_value) < 12 && (u16_adc1_value >= 9))
-     {
-          Tempter = 33 - u16_adc1_value;
-          LED[0] = 0;
-          LED[1] = Tempter/10;
-          LED[2] = Tempter%10;
-     
-     }
-     else if ((u16_adc1_value) < 9 && (u16_adc1_value >= 7))
-     {
-          Tempter = 38 - u16_adc1_value;
-          LED[0] = 0;
-          LED[1] = Tempter/10;
-          LED[2] = Tempter%10;
-     }
-     else if ((u16_adc1_value) < 7 && (u16_adc1_value >= 4))
-     {
-          Tempter = 45 - u16_adc1_value;
-          LED[0] = 0;
-          LED[1] = Tempter/10;
-          LED[2] = Tempter%10;
-     }
-     else if ((u16_adc1_value) < 4 && (u16_adc1_value >= 2))
-     {
-         Tempter = 50 - u16_adc1_value;
-          LED[0] = 0;
-          LED[1] = Tempter/10;
-          LED[2] = Tempter%10;
-     
-     }
-
-}
 
 //----------------------------------------
 //
 void  DisplayTemperInsider(u16 u16_adc1_value)
 {
-    DisplayTemperNow(u16_adc1_value);
+    //DisplayTemperNow(u16_adc1_value);
+     u8  tempter1 = TemperTable[u16_adc1_value];
+     
+     if (u16_adc1_value < 28)
+     LED[0] = 0;
+     else
+     LED[0] = 16;
+     
+     LED[1] = tempter1/10;
+     LED[2] = tempter1%10;
+     
 }
 
 //------------------------------------------
 //镜筒温度
 void DisplayTemperSide(u16 u16_adc2_value)
 {
-     DisplayTemperNow(u16_adc2_value);
+     u8  tempter1 = TemperTable[u16_adc2_value];
+     
+     if (u16_adc2_value < 28)
+     LED[0] = 0;
+     else
+     LED[0] = 16;
+       
+     LED[1] = tempter1/10;
+     LED[2] = tempter1%10;
 
 }
 
@@ -275,7 +247,7 @@ void TIM2_Init(void)
 
 { 
   CLK_PeripheralClockConfig(CLK_Peripheral_TIM2,ENABLE);//将主时钟信号送给定时器4(L系列单片机必需)
-  TIM2_TimeBaseInit(TIM2_Prescaler_16,TIM2_CounterMode_Up,100);            //100us
+  TIM2_TimeBaseInit(TIM2_Prescaler_16,TIM2_CounterMode_Up,100);            //100us   16M/16*100
   TIM2_SetCounter(250);                                //寄存器存储初始值
   TIM2_ITConfig(TIM2_IT_Update,ENABLE);
   TIM2_ARRPreloadConfig(ENABLE);
@@ -319,10 +291,9 @@ void main(void)
   ADC_Cmd(ADC1,ENABLE);//ADC1使能
   //ADC_ChannelCmd (ADC1,ADC_Channel_18,ENABLE);//ADC1 18通道使能
   
-   LED[0] = 4;
-   LED[1] = 3;
-   LED[2] = 2;
-   LED[3] = 1;
+   LED[0] = 0;
+   LED[1] = 0;
+   LED[2] = 0;
    
    TIM2_Init();
    
@@ -340,7 +311,7 @@ void main(void)
       // Delay(0xFFFF);
        u16_adc1_value = (u16_adc1_value*33000)>>12;//电压扩大10倍
        u16_adc1_value = u16_adc1_value/1000;
-       u16_adc1_value = (10*u16_adc1_value)/(33-u16_adc1_value);
+       u16_adc1_value = (10*u16_adc1_value)/(33-u16_adc1_value); //电阻值
        DisplayData(u16_adc1_value);
  
              
@@ -353,7 +324,7 @@ void main(void)
       // Delay(0xFFFF);
        u16_adc2_value = (u16_adc2_value*33000)>>12;//电压扩大10倍
        u16_adc2_value = u16_adc2_value/1000;
-       u16_adc2_value = (10*u16_adc2_value)/(33-u16_adc2_value);
+       u16_adc2_value = (10*u16_adc2_value)/(33-u16_adc2_value);//电阻值
        DisplayData(u16_adc2_value);
         
        #endif
@@ -368,12 +339,12 @@ void main(void)
                
        }  
                      
-        
+#if 1 
       if (CounterDisplay < 1000)
       {
           
           //  LED[3] = 16; 
-            DisplayTemperNow(u16_adc1_value);
+            DisplayTemperInsider(u16_adc1_value);
   
       }
       else
@@ -384,6 +355,7 @@ void main(void)
             DisplayTemperSide(u16_adc2_value);
 
       }
+#endif
       GPIO_SetBits(HOT_PORT, HOT_PINS);
   
   }
