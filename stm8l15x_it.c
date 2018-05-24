@@ -29,6 +29,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm8l15x_it.h"
 extern void LED4_Display (void);
+extern void LED4_DisplayOff (void);
 /** @addtogroup STM8L15x_StdPeriph_Template
   * @{
   */
@@ -286,6 +287,7 @@ INTERRUPT_HANDLER(ADC1_COMP_IRQHandler,18)
   * @retval None
   */
 u16 CounterDisplay = 0;
+u8 Counter = 0;
 INTERRUPT_HANDLER(TIM2_UPD_OVF_TRG_BRK_USART2_TX_IRQHandler,19)
 {
     /* In order to detect unexpected events during development,
@@ -297,7 +299,16 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_TRG_BRK_USART2_TX_IRQHandler,19)
     else
         CounterDisplay++;
     
-    LED4_Display ();
+    if (Counter < 120)
+      Counter++;
+    else
+      Counter = 0;
+    
+    if (Counter < 60)
+      LED4_Display ();
+    else 
+      LED4_DisplayOff ();
+    
     TIM2_ClearFlag(TIM2_FLAG_Update);
 }
 

@@ -25,7 +25,7 @@
 
                  // 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19               28
 //温度数据
-u8 TemperTable[]= {100,95,80,64,54,40,36,32,29,26,24,22,20,19,17,16,15,13,12,9,8,6,5,4,3,2,1,0,0,1,2,2,3,4,4,5,6,6,7,7,8};
+u8 TemperTable[]= {100,95,80,64,54,40,36,32,29,26,24,22,20,19,17,16,15,13,12,9,8,6,5,4,3,2,1,0,0,1,2,2,3,4,4,5,6,6,7,7,8,9,10,11,12,13,14};
 //数码管显示
 uint8_t HexTable[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
@@ -187,10 +187,55 @@ void LED4_Display (void)
 	RCLKLow;
 	RCLKHigh;
 #endif
+        //Delay(50000);
 
 }
 
+//---------------------------------------------------------------------------
+//数码管显示off
 
+void LED4_DisplayOff (void)
+{
+	unsigned char *led_table;          // 查表指针
+	uchar i;
+	//显示第3位
+	led_table = LED_0F + LED[2];
+	i = *led_table;
+
+	LED_OUT(i);	
+	LED_OUT(0x00);		
+
+	RCLKLow;
+	RCLKHigh;
+        
+       //Delay(1000);
+        
+	
+	//显示第2位
+	led_table = LED_0F + LED[1];
+	i = *led_table;
+
+	LED_OUT(i);		
+	LED_OUT(0x00);		
+	
+	RCLKLow;
+	RCLKHigh;
+       // Delay(1000);
+        
+               
+	//显示第1位
+	led_table = LED_0F + LED[0];
+	i = *led_table;
+
+	LED_OUT(i);			
+	LED_OUT(0x00);	
+
+	RCLKLow;
+	RCLKHigh;
+        //Delay(1000);
+        
+
+}
 //------------------------------------------
 //74HC595的每一个移位
 
