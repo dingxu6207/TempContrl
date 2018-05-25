@@ -28,6 +28,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm8l15x_it.h"
+#include "stdbool.h"
 extern void LED4_Display (void);
 extern void LED4_DisplayOff (void);
 /** @addtogroup STM8L15x_StdPeriph_Template
@@ -288,6 +289,12 @@ INTERRUPT_HANDLER(ADC1_COMP_IRQHandler,18)
   */
 u16 CounterDisplay = 0;
 u8 Counter = 0;
+u16 CounterFlag = 0;
+bool FlagDate = false;
+bool FlagD2 = false;
+bool FlagD3 = false;
+bool FlagD1 = false;
+bool FlagD4 = false;
 INTERRUPT_HANDLER(TIM2_UPD_OVF_TRG_BRK_USART2_TX_IRQHandler,19)
 {
     /* In order to detect unexpected events during development,
@@ -303,11 +310,58 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_TRG_BRK_USART2_TX_IRQHandler,19)
       Counter++;
     else
       Counter = 0;
+    if (FlagDate == true)
+    {
+        if (Counter < 60)
+          LED4_Display ();
+        else 
+          LED4_DisplayOff ();
+    }
+    else
+       LED4_Display ();
     
-    if (Counter < 60)
-      LED4_Display ();
-    else 
-      LED4_DisplayOff ();
+    if (CounterFlag > 3500)
+      CounterFlag = 0;
+    else
+      CounterFlag++;
+    
+     if ((CounterFlag > 300)  && (CounterFlag <= 400))
+      {
+           if ((GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_1)==0) || (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_2)==0))
+              FlagD2 =  true;
+           else
+              FlagD2 =  false;      
+      }    
+      else if ((CounterFlag > 3200)  && (CounterFlag <= 3400))
+      {
+           if ((GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_1)==0) || (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_2)==0))
+              FlagD3 =  true;
+           else
+              FlagD3 =  false;     
+      }
+       else if ((CounterFlag > 800)  && (CounterFlag <= 900))
+      {
+           if ((GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_1)) && (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_2)))
+              FlagD1 =  true;
+           else
+              FlagD1 =  false;     
+      }
+        else if ((CounterFlag > 3000)  && (CounterFlag <= 3100))
+      {
+           if ((GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_1)) && (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_2)))
+              FlagD4 =  true;
+           else
+              FlagD4 =  false;     
+      }
+
+      if (FlagD2 &&  FlagD3)
+      {
+          FlagDate = true;
+      }
+      else if (FlagD1 &&  FlagD4)
+      {
+          FlagDate = false;
+      }
     
     TIM2_ClearFlag(TIM2_FLAG_Update);
 }

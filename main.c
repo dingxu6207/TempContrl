@@ -11,6 +11,7 @@
 #include "stm8l15x.h"//STM8L051/151公用库函数
 #include <stdlib.h>
 #include "math.h"  
+#include "stdbool.h"
 
 //定义LED及按键端口
 #define LED_PORT  GPIOA
@@ -22,6 +23,9 @@
 
 #define KEY_PORT  GPIOB
 #define KEY_PINS  GPIO_Pin_1
+
+#define KEY_PORTADD  GPIOB
+#define KEY_PINSADD  GPIO_Pin_2
 
                  // 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19               28
 //温度数据
@@ -285,6 +289,22 @@ void DisplayTemperSide(u16 u16_adc2_value)
 
 }
 
+//-----------------------------------------------
+//插值温度
+void DisplayTemperDiff(u8 DifTemp)
+{
+      LED[0] = 0;
+       
+     LED[1] = DifTemp/10;
+     LED[2] = DifTemp%10;
+
+}
+
+//------------------------------------------------
+//keyscan 
+
+
+
 //-------------------------------------------------
 //定时器2配置，1毫秒产生一次中断，用于系统计时
 
@@ -307,11 +327,16 @@ void TIM2_Init(void)
 ********************************************************************************/
 
 extern u16 CounterDisplay;
+extern bool FlagDate;
+extern u16 CounterFlag ;
+
 void main(void)
 {
   u16 u16_adc1_value; 
   u16 u16_adc2_value;
-
+  u8 DifTemp = 0;
+  u8 SetTemp = 0;
+ 
   
   GPIO_Init(LED_PORT,LED_PINS,GPIO_Mode_Out_PP_Low_Slow);//初始化LED端口
   GPIO_Init(LED1_PORT,LED1_PINS,GPIO_Mode_Out_PP_Low_Slow);//初始化LED端口
@@ -319,6 +344,7 @@ void main(void)
   GPIO_Init(HOT_PORT,HOT_PINS,GPIO_Mode_Out_PP_Low_Slow);
   
   GPIO_Init(KEY_PORT,KEY_PINS,GPIO_Mode_In_PU_No_IT);//初始化KEY端口，带上拉输入，不带中断
+  GPIO_Init(KEY_PORTADD,KEY_PINSADD,GPIO_Mode_In_PU_No_IT);
   
   GPIO_Init(DIO_PORT,DIO_PINS,GPIO_Mode_Out_PP_High_Fast);//初始化DIO端口
   GPIO_Init(RCLK_PORT,RCLK_PINS,GPIO_Mode_Out_PP_High_Fast);//初始化RCLK端口
@@ -374,34 +400,66 @@ void main(void)
         
        #endif
 
+       
+       
        if (GPIO_ReadInputDataBit(KEY_PORT,KEY_PINS)==0)//读GPB1输入状态
        {
+           Delay(4000);  //软件防抖,20ms   
+           if (GPIO_ReadInputDataBit(KEY_PORT,KEY_PINS)==0)
+           {
+               while (GPIO_ReadInputDataBit(KEY_PORT,KEY_PINS)==0);
+                GPIO_ToggleBits(LED_PORT, LED_PINS);//翻转LED输出状态 
+                if (SetTemp < 30)
+                	SetTemp++;
+                else
+                 	SetTemp = 0;
+           }             
+       }
+     
+            
+       
+       if (GPIO_ReadInputDataBit(KEY_PORTADD,KEY_PINSADD)==0)//读GPB1输入状态
+       {          
+            
              Delay(4000);  //软件防抖,20ms
-             if(GPIO_ReadInputDataBit(KEY_PORT,KEY_PINS)==0)  //读GPB1输入状态
+             if(GPIO_ReadInputDataBit(KEY_PORTADD,KEY_PINSADD)==0)  //读GPB1输入状态
              {
-                 GPIO_ToggleBits(LED_PORT, LED_PINS);//翻转LED输出状态            
+                while (GPIO_ReadInputDataBit(KEY_PORTADD,KEY_PINSADD)==0);
+               
+               GPIO_ToggleBits(LED1_PORT, LED1_PINS);//翻转LED输出状态 
+				if (SetTemp > 0)
+                	SetTemp--;
+                else
+                	SetTemp = 30;
              }
                
-       }  
-                     
-#if 1 
+       }
+        
+ 
       if (CounterDisplay < 1000)
       {
           
-          //  LED[3] = 16; 
-            DisplayTemperInsider(u16_adc1_value);
+          if (FlagDate == true)
+            DisplayTemperDiff(SetTemp);
+          else
+          DisplayTemperInsider(u16_adc1_value);
   
       }
       else
      {
           //显示镜筒温度
-           
-           // LED[3] = 16; 
+             if (FlagDate == true)
+                DisplayTemperDiff(SetTemp);
+             else
             DisplayTemperSide(u16_adc2_value);
 
       }
-#endif
-      GPIO_SetBits(HOT_PORT, HOT_PINS);
+      
+      DifTemp = TemperTable[u16_adc1_value] + SetTemp - TemperTable[u16_adc2_value];
+      if (DifTemp > TemperTable[u16_adc2_value])
+        GPIO_SetBits(HOT_PORT, HOT_PINS); 
+      else
+        GPIO_ResetBits(HOT_PORT, HOT_PINS); 
   
   }
 }
