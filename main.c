@@ -409,7 +409,7 @@ void main(void)
            {
                while (GPIO_ReadInputDataBit(KEY_PORT,KEY_PINS)==0);
                 GPIO_ToggleBits(LED_PORT, LED_PINS);//·­×ªLEDÊä³ö×´Ì¬ 
-                if (SetTemp < 30)
+                if ((SetTemp < 30) && FlagDate)
                 	SetTemp++;
                 else
                  	SetTemp = 0;
@@ -427,7 +427,7 @@ void main(void)
                 while (GPIO_ReadInputDataBit(KEY_PORTADD,KEY_PINSADD)==0);
                
                GPIO_ToggleBits(LED1_PORT, LED1_PINS);//·­×ªLEDÊä³ö×´Ì¬ 
-				if (SetTemp > 0)
+		if ((SetTemp > 0) && FlagDate)
                 	SetTemp--;
                 else
                 	SetTemp = 30;
