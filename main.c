@@ -29,7 +29,7 @@
 
                  // 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19               28
 //温度数据
-u8 TemperTable[]= {100,95,80,64,54,40,36,32,29,26,24,22,20,19,17,16,15,13,12,9,8,6,5,4,3,2,1,0,0,1,2,2,3,4,4,5,6,6,7,7,8,9,10,11,12,13,14};
+u8 TemperTable[]= {100,95,80,64,48,40,36,32,29,26,24,22,20,19,17,16,15,13,12,9,8,6,5,4,3,2,1,0,0,1,2,2,3,4,4,5,6,6,7,7,8,9,10,11,12,13,14};
 //数码管显示
 uint8_t HexTable[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
@@ -455,7 +455,7 @@ void main(void)
 
       }
       
-      DifTemp = TemperTable[u16_adc1_value] + SetTemp - TemperTable[u16_adc2_value];
+      DifTemp = TemperTable[u16_adc1_value] + SetTemp;
       if (DifTemp > TemperTable[u16_adc2_value])
         GPIO_SetBits(HOT_PORT, HOT_PINS); 
       else
