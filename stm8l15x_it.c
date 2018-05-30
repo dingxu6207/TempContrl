@@ -320,7 +320,7 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_TRG_BRK_USART2_TX_IRQHandler,19)
     else
        LED4_Display ();
     
-    if (CounterFlag > 3500)
+    if (CounterFlag > 2500)
       CounterFlag = 0;
     else
       CounterFlag++;
@@ -332,7 +332,7 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_TRG_BRK_USART2_TX_IRQHandler,19)
            else
               FlagD2 =  false;      
       }    
-      else if ((CounterFlag > 3200)  && (CounterFlag <= 3400))
+      else if ((CounterFlag > 2200)  && (CounterFlag <= 2400))
       {
            if ((GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_1)==0) || (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_2)==0))
               FlagD3 =  true;
@@ -346,7 +346,7 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_TRG_BRK_USART2_TX_IRQHandler,19)
            else
               FlagD1 =  false;     
       }
-        else if ((CounterFlag > 3000)  && (CounterFlag <= 3100))
+        else if ((CounterFlag > 2000)  && (CounterFlag <= 2100))
       {
            if ((GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_1)) && (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_2)))
               FlagD4 =  true;

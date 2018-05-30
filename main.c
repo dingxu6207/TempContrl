@@ -29,7 +29,115 @@
 
                  // 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19               28
 //温度数据
-int TemperTable[]= {100,95,80,53,45,40,36,32,29,26,24,22,20,19,17,16,15,13,12,9,8,6,5,4,3,2,1,0,0,-1,-2,-2,-3,-4,-4,-5,-6,-6,-7,-7,-8,-9,-10,-11,-12,-13,-14};
+//int TemperTable[]= {100,95,80,53,45,40,36,32,29,26,24,22,20,19,17,16,15,13,12,9,8,6,5,4,3,2,1,0,0,-1,-2,-2,-3,-4,-4,-5,-6,-6,-7,-7,-8,-9,-10,-11,-12,-13,-14};
+
+//        MF52E 10K at 25, B = 3950, ADC = 12 bits
+u16 temp_table[]={
+                1905,        //;-40        0
+                1834,        //;-39        1
+                1756,        //;-38        2
+                1676,        //;-37        3
+                1595,        //;-36        4
+                1515,        //;-35        5
+                1438,        //;-34        6
+                1364,        //;-33        7
+                1293,        //;-32        8
+                1226,        //;-31        9
+                1163,        //;-30        10
+                1104,        //;-29        11
+                1048,        //;-28        12
+                995,        //;-27        13
+                946,        //;-26        14
+                900,        //;-25        15
+                856,        //;-24        16
+                815,        //;-23        17
+                777,        //;-22        18
+                740,        //;-21        19
+                705,        //;-20        20
+                672,        //;-19        21
+                641,        //;-18        22
+                612,        //;-17        23
+                584,        //;-16        24
+                557,        //;-15        25
+                531,        //;-14        26
+                507,        //;-13        27
+                484,        //;-12        28
+                462,        //;-11        29
+                441,        //;-10        30
+                421,        //;-9        31
+                402,        //;-8        32
+                383,        //;-7        33
+                366,        //;-6        34
+                350,        //;-5        35
+                334,        //;-4        36
+                320,        //;-3        37
+                306,        //;-2        38
+                292,        //;-1        39
+                280,        //;0        40
+                268,        //;1        41
+                256,        //;2        42
+                246,        //;3        43
+                236,        //;4        44
+                226,        //;5        45
+                217,        //;6        46
+                208,        //;7        47
+                200,        //;8        48
+                192,        //;9        49
+                185,        //;10        50
+                184,        //;11        51
+                181,        //;12        52
+                176,        //;13        53
+                169,        //;14        54
+                162,        //;15        55
+                155,        //;16        56
+                147,        //;17        57
+                140,        //;18        58
+                133,        //;19        59
+                126,        //;20        60
+                120,        //;21        61
+                114,        //;22        62
+                109,        //;23        63
+                104,        //;24        64
+                100,        //;25        65
+                95,        //;26        66
+                91,        //;27        67
+                88,        //;28        68
+                84,        //;29        69
+                81,        //;30        70
+                78,        //;31        71
+                75,        //;32        72
+                73,        //;33        73
+                70,        //;34        74
+                68,        //;35        75
+                65,        //;36        76
+                63,        //;37        77
+                61,        //;38        78
+                59,        //;39        79
+                57,        //;40        80
+                55,        //;41        81
+                53,        //;42        82
+                51,        //;43        83
+                49,        //;44        84
+                48,        //;45        85
+                46,        //;46        86
+                45,        //;47        87
+                43,        //;48        88
+                42,        //;49        89
+                40,        //;50        90
+                39,        //;51        91
+                37,        //;52        92
+                36,        //;53        93
+                35,        //;54        94
+                34,        //;55        95
+                32,        //;56        96
+                31,        //;57        97
+                30,        //;58        98
+                29,        //;59        99
+                28,        //;60        100
+                27         //;61        101 
+};
+
+
 //数码管显示
 uint8_t HexTable[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
@@ -258,34 +366,34 @@ void LED_OUT(uchar X)
 
 //----------------------------------------
 //
-void  DisplayTemperInsider(u16 u16_adc1_value)
+void  DisplayTemperInsider(int u16_adc1_value)
 {
-    //DisplayTemperNow(u16_adc1_value);
-     u8  tempter1 = TemperTable[u16_adc1_value];
-     
-     if (u16_adc1_value < 28)
+        
+     if (u16_adc1_value > 0)
      LED[0] = 0;
      else
      LED[0] = 16;
      
-     LED[1] = tempter1/10;
-     LED[2] = tempter1%10;
+     u16_adc1_value = abs(u16_adc1_value);
+     
+     LED[1] = u16_adc1_value/10;
+     LED[2] = u16_adc1_value%10;
      
 }
 
 //------------------------------------------
 //镜筒温度
-void DisplayTemperSide(u16 u16_adc2_value)
+void DisplayTemperSide(int u16_adc2_value)
 {
-     u8  tempter1 = TemperTable[u16_adc2_value];
-     
-     if (u16_adc2_value < 28)
+        
+     if (u16_adc2_value > 0)
      LED[0] = 0;
      else
      LED[0] = 16;
-       
-     LED[1] = tempter1/10;
-     LED[2] = tempter1%10;
+
+     u16_adc2_value = abs(u16_adc2_value);
+     LED[1] = u16_adc2_value/10;
+     LED[2] = u16_adc2_value%10;
 
 }
 
@@ -301,7 +409,22 @@ void DisplayTemperDiff(u8 DifTemp)
 }
 
 //------------------------------------------------
-//keyscan 
+//查找温度
+u8  FindDex(u16 TemResister)
+{
+  u8 i = 0;
+  //DisplayData(temp_table[49]);
+  for (i = 1;i < 102; i++ )
+  {
+    if ( (TemResister <= temp_table[i-1]) && (TemResister >= temp_table[i]))
+    {     
+	  //DisplayData(temp_table[i-1]);
+      break;
+    } 
+  }  
+  //DisplayData(i);
+  return i;
+}
 
 
 
@@ -335,6 +458,8 @@ void main(void)
   u16 u16_adc2_value;
   u8 DifTemp = 0;
   u8 SetTemp = 0;
+  int temperInsider;
+  int temperOutsider;
  
   
   GPIO_Init(LED_PORT,LED_PINS,GPIO_Mode_Out_PP_Low_Slow);//初始化LED端口
@@ -378,11 +503,12 @@ void main(void)
        u16_adc1_value=ADC_GetConversionValue (ADC1);//获取转换值
        ADC_ChannelCmd (ADC1,ADC_Channel_18,DISABLE);//ADC1 18通道使能
 
-      // Delay(0xFFFF);
+       //Delay(0xFFFF);
        u16_adc1_value = (u16_adc1_value*33000)>>12;//电压扩大10倍
        u16_adc1_value = u16_adc1_value/1000;
-       u16_adc1_value = (10*u16_adc1_value)/(33-u16_adc1_value); //电阻值
-       DisplayData(u16_adc1_value);
+       u16_adc1_value = (100*u16_adc1_value)/(33-u16_adc1_value); //电阻值
+       //DisplayData(u16_adc1_value);
+       temperInsider = FindDex(u16_adc1_value) - 40;
  
              
        ADC_ChannelCmd (ADC1,ADC_Channel_4,ENABLE);//ADC1 17通道使能
@@ -391,12 +517,12 @@ void main(void)
        u16_adc2_value=ADC_GetConversionValue (ADC1);//获取转换值
        ADC_ChannelCmd (ADC1,ADC_Channel_4,DISABLE);//ADC1 17通道使能
 
-      // Delay(0xFFFF);
+       //Delay(0xFFFF);
        u16_adc2_value = (u16_adc2_value*33000)>>12;//电压扩大10倍
        u16_adc2_value = u16_adc2_value/1000;
-       u16_adc2_value = (10*u16_adc2_value)/(33-u16_adc2_value);//电阻值
-       DisplayData(u16_adc2_value);
-        
+       u16_adc2_value = (100*u16_adc2_value)/(33-u16_adc2_value);//电阻值
+      // DisplayData(u16_adc2_value);
+       temperOutsider = FindDex(u16_adc2_value) - 40;
        #endif
 
        
@@ -443,7 +569,7 @@ void main(void)
           if (FlagDate == true)
             DisplayTemperDiff(SetTemp);
           else
-          DisplayTemperInsider(u16_adc1_value);
+          DisplayTemperInsider(temperInsider);
   
       }
       else
@@ -452,12 +578,12 @@ void main(void)
              if (FlagDate == true)
                 DisplayTemperDiff(SetTemp);
              else
-            DisplayTemperSide(u16_adc2_value);
+            DisplayTemperSide(temperOutsider);
 
       }
       
-      DifTemp = TemperTable[u16_adc1_value] + SetTemp;
-      if (DifTemp > TemperTable[u16_adc2_value])
+      DifTemp = temperInsider + SetTemp;
+      if (DifTemp > temperOutsider)
         GPIO_SetBits(HOT_PORT, HOT_PINS); 
       else
         GPIO_ResetBits(HOT_PORT, HOT_PINS); 
