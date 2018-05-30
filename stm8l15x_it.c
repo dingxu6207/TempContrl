@@ -339,7 +339,7 @@ INTERRUPT_HANDLER(TIM2_UPD_OVF_TRG_BRK_USART2_TX_IRQHandler,19)
            else
               FlagD3 =  false;     
       }
-       else if ((CounterFlag > 280)  && (CounterFlag <= 300))
+       else if ((CounterFlag > 180)  && (CounterFlag <= 190))
       {
            if ((GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_1)) && (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_2)))
               FlagD1 =  true;

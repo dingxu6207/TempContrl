@@ -29,7 +29,7 @@
 
                  // 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19               28
 //温度数据
-u8 TemperTable[]= {100,95,80,64,48,40,36,32,29,26,24,22,20,19,17,16,15,13,12,9,8,6,5,4,3,2,1,0,0,1,2,2,3,4,4,5,6,6,7,7,8,9,10,11,12,13,14};
+int TemperTable[]= {100,95,80,53,45,40,36,32,29,26,24,22,20,19,17,16,15,13,12,9,8,6,5,4,3,2,1,0,0,-1,-2,-2,-3,-4,-4,-5,-6,-6,-7,-7,-8,-9,-10,-11,-12,-13,-14};
 //数码管显示
 uint8_t HexTable[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
@@ -328,8 +328,7 @@ void TIM2_Init(void)
 
 extern u16 CounterDisplay;
 extern bool FlagDate;
-extern u16 CounterFlag ;
-
+extern u16 CounterFlag;
 void main(void)
 {
   u16 u16_adc1_value; 
@@ -408,7 +407,8 @@ void main(void)
            if (GPIO_ReadInputDataBit(KEY_PORT,KEY_PINS)==0)
            {
                while (GPIO_ReadInputDataBit(KEY_PORT,KEY_PINS)==0);
-                GPIO_ToggleBits(LED_PORT, LED_PINS);//翻转LED输出状态 
+                GPIO_ToggleBits(LED_PORT, LED_PINS);//翻转LED输出状态
+                CounterFlag = 0;
                 if ((SetTemp < 30) && FlagDate)
                 	SetTemp++;
                 else
@@ -427,6 +427,7 @@ void main(void)
                 while (GPIO_ReadInputDataBit(KEY_PORTADD,KEY_PINSADD)==0);
                
                GPIO_ToggleBits(LED1_PORT, LED1_PINS);//翻转LED输出状态 
+               CounterFlag = 0;
 		if ((SetTemp > 0) && FlagDate)
                 	SetTemp--;
                 else
